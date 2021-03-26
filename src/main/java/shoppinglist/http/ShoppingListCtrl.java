@@ -8,17 +8,17 @@ package shoppinglist.http;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import shoppinglist.entity.DaftarBelanja;
 import shoppinglist.entity.DaftarBelanjaDetil;
+import shoppinglist.repository.DaftarBelanjaRepo;
 import shoppinglist.service.ShoppingListService;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author irfin
@@ -28,7 +28,7 @@ public class ShoppingListCtrl
 {
     @Autowired
     private ShoppingListService service;
-
+    private DaftarBelanjaRepo repo;
     /**
      * Mengembalikan daftar objek DaftarBelanja utk pengaksesan HTTP GET.
      *
@@ -66,5 +66,59 @@ public class ShoppingListCtrl
             return ResponseEntity.ok("Data tersimpan dengan ID: " + entity.getId());
         else
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Data gagal tersimpan");
+    }
+
+    //Mencari daftar belanja berdasarkan judul
+    public ResponseEntity<List<DaftarBelanja>> findJudul(@RequestParam String title){
+        try{
+
+            List<DaftarBelanja> db = new ArrayList<>();
+            repo.findbyTitle(title).forEach(db :: add);
+            if(db.isEmpty()){
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+            return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+        }catch (Exception ex){
+            return  new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    //Insert Daftar Belanja
+    @PostMapping("shoppinglist")
+    public ResponseEntity<DaftarBelanja> insertDaftarBelanja(@RequestBody DaftarBelanja db){
+        try{
+            DaftarBelanja db2 = repo.save(new DaftarBelanja(db.getJudul(),db.getTanggal(),db.getDaftarBarang()));
+            return new ResponseEntity<>(db2,HttpStatus.CREATED);
+        }catch (Exception ex){
+            return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    //Update Daftar Belanja
+
+    public ResponseEntity<DaftarBelanja> updateDaftarBelanja(@PathVariable("id") Long id,@RequestBody DaftarBelanja db){
+
+        Optional<DaftarBelanja> dbData = repo.findById(id);
+        if(dbData.isPresent()){
+            DaftarBelanja db2 = dbData.get();
+            db2.setJudul(db.getJudul());
+            db.setTanggal(db.getTanggal());
+            return new ResponseEntity<>(repo.save(db2),HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    //Delete Daftar Belanja
+
+    public ResponseEntity<DaftarBelanja> DeleteDaftarBelanja(@PathVariable("id") Long id,@RequestBody DaftarBelanja db){
+
+        try{
+            repo.deleteById(id);
+            return  new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        }catch(Exception e){
+            return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

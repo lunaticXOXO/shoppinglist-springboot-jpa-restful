@@ -54,57 +54,5 @@ public class ShoppingListService {
         }
     }
 
-    //Mencari daftar belanja berdasarkan judul
-    public ResponseEntity<List<DaftarBelanja>> findJudul(@RequestParam String title){
-        try{
 
-            List<DaftarBelanja> db = new ArrayList<>();
-            repo.findbyTitle(title).forEach(db :: add);
-            if(db.isEmpty()){
-                return new ResponseEntity<>(HttpStatus.OK);
-            }
-            return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
-        }catch (Exception ex){
-            return  new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    //Insert Daftar Belanja
-    @PostMapping("shoppinglist")
-    public ResponseEntity<DaftarBelanja> insertDaftarBelanja(@RequestBody DaftarBelanja db){
-        try{
-            DaftarBelanja db2 = repo.save(new DaftarBelanja(db.getJudul(),db.getTanggal(),db.getDaftarBarang()));
-            return new ResponseEntity<>(db2,HttpStatus.CREATED);
-        }catch (Exception ex){
-            return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    //Update Daftar Belanja
-
-   public ResponseEntity<DaftarBelanja> updateDaftarBelanja(@PathVariable("id") Long id,@RequestBody DaftarBelanja db){
-
-        Optional<DaftarBelanja> dbData = repo.findById(id);
-        if(dbData.isPresent()){
-            DaftarBelanja db2 = dbData.get();
-            db2.setJudul(db.getJudul());
-            db.setTanggal(db.getTanggal());
-            return new ResponseEntity<>(repo.save(db2),HttpStatus.OK);
-        }else{
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-   }
-
-   //Delete Daftar Belanja
-
-    public ResponseEntity<DaftarBelanja> DeleteDaftarBelanja(@PathVariable("id") Long id,@RequestBody DaftarBelanja db){
-
-        try{
-            repo.deleteById(id);
-            return  new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-        }catch(Exception e){
-            return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 }
