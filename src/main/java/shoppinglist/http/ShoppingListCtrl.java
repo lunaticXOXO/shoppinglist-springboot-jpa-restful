@@ -24,8 +24,7 @@ import java.util.Optional;
  * @author irfin
  */
 @RestController
-public class ShoppingListCtrl
-{
+public class ShoppingListCtrl {
     @Autowired
     private ShoppingListService service;
     private DaftarBelanjaRepo repo;
@@ -68,6 +67,7 @@ public class ShoppingListCtrl
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Data gagal tersimpan");
     }
 
+    //versi postman
     //Mencari daftar belanja berdasarkan judul
     public ResponseEntity<List<DaftarBelanja>> findJudul(@RequestParam String title){
         try{
@@ -112,7 +112,6 @@ public class ShoppingListCtrl
     //Delete Daftar Belanja
 
     public ResponseEntity<DaftarBelanja> DeleteDaftarBelanja(@PathVariable("id") Long id,@RequestBody DaftarBelanja db){
-
         try{
             repo.deleteById(id);
             return  new ResponseEntity<>(HttpStatus.NO_CONTENT);
